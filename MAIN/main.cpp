@@ -1,37 +1,31 @@
+
 #include <iostream>
 #include <fstream>
 #include <bitset>
-
-//[0,15]
-
 using namespace std;
 
 int n, i, j, pi, pj, m;
-int arr[100][100];
-int sol[100][100];
+int arr[200][200];
+int sol[200][200];
 bitset<4> bin;
 
 struct celula
 {
-    int N;
-    int E;
-    int S;
-    int V;
+    int N; int E; int S; int V;
 };
 
-celula labirint[20][20];
+celula labirint[250][250];
 
 void dectobin(int x)
 {
-    bin = 0;
-    bin = x;
+    bin = 0; bin = x;
 }
 
 int solutie(int pozi, int pozj, int nr_pasi)
 {
     if (pozi == 0 || pozj == 0 || pozi == n + 1 || pozj == m + 1)
         return 1;
-    else
+    else 
         return 0;
 }
 
@@ -47,16 +41,8 @@ void tipar(int nr_pasi)
 
 void init(int nr_pasi)
 {
-    if (nr_pasi == 1)
-    {
-        sol[nr_pasi][1] = pi;
-        sol[nr_pasi][2] = pj;
-    }
-    else
-    {
-        sol[nr_pasi][1] = sol[nr_pasi - 1][1];
-        sol[nr_pasi][2] = sol[nr_pasi - 1][2];
-    }
+    sol[nr_pasi][1] = sol[nr_pasi - 1][1];
+    sol[nr_pasi][2] = sol[nr_pasi - 1][2];
 }
 
 int succesor(int pozi, int pozj, int nr_pasi)
@@ -81,10 +67,6 @@ int succesor(int pozi, int pozj, int nr_pasi)
     return 0;
 }
 
-int valid(int nr_pasi)
-{
-    return 1;
-}
 
 void bk(int pozi, int pozj, int nr_pasi)
 {
@@ -94,60 +76,73 @@ void bk(int pozi, int pozj, int nr_pasi)
     }
     else
     {
-        int okn=0,oke=0,oks=0,okv=0;
+        int okn = 0, oke = 0, okv = 0, oks = 0;
+
         init(nr_pasi);
+
+        int verif = 0;
+
         while (succesor(pozi, pozj, nr_pasi) == 1)
         {
             okn=1;
             sol[nr_pasi][1]--;
-            if (valid(nr_pasi) == 1)
-            {
-                labirint[pozi][pozj].N = 0;
-                labirint[pozi - 1][pozj].S = 0;
-                bk(pozi - 1, pozj, nr_pasi + 1);
-                labirint[pozi - 1][pozj].S = 1;
-            }
+            
+            labirint[pozi][pozj].N = 0;
+            labirint[pozi - 1][pozj].S = 0;
+
+            verif = labirint[pozi-1][pozj].S;
+            bk(pozi - 1, pozj, nr_pasi + 1);
+            
+            if(verif) labirint[pozi - 1][pozj].S = 1;
+            
             sol[nr_pasi][1]++;
         }
         while (succesor(pozi, pozj, nr_pasi) == 2)
         {
             oke=1;
             sol[nr_pasi][2]++;
-            if (valid(nr_pasi) == 1)
-            {
-                labirint[pozi][pozj].E = 0;
-                labirint[pozi][pozj + 1].V = 0;
-                bk(pozi, pozj + 1, nr_pasi + 1);
-                labirint[pozi][pozj + 1].V = 1;
-            }
+
+            labirint[pozi][pozj].E = 0;
+           
+            verif = labirint[pozi][pozj + 1].V;
+            labirint[pozi][pozj + 1].V = 0;
+            
+            bk(pozi, pozj + 1, nr_pasi + 1);
+            if(verif)labirint[pozi][pozj + 1].V = 1;
+            
             sol[nr_pasi][2]--;
         }
         while (succesor(pozi, pozj, nr_pasi) == 3)
         {
             oks=1;
             sol[nr_pasi][1]++;
-            if (valid(nr_pasi) == 1)
-            {
-                labirint[pozi][pozj].S = 0;
-                labirint[pozi + 1][pozj].N = 0;
-                bk(pozi + 1, pozj, nr_pasi + 1);
-                labirint[pozi + 1][pozj].N = 1;
-            }
+            
+            labirint[pozi][pozj].S = 0;
+            labirint[pozi + 1][pozj].N = 0;
+            
+            verif = labirint[pozi+1][pozj].N;
+            
+            bk(pozi + 1, pozj, nr_pasi + 1);
+            if(verif)labirint[pozi + 1][pozj].N = 1;
+        
             sol[nr_pasi][1]--;
         }
         while (succesor(pozi, pozj, nr_pasi) == 4)
         {
             okv=1;
             sol[nr_pasi][2]--;
-            if (valid(nr_pasi) == 1)
-            {
-                labirint[pozi][pozj].V = 0;
-                labirint[pozi][pozj - 1].E = 0;
-                bk(pozi, pozj - 1, nr_pasi + 1);
-                labirint[pozi][pozj - 1].E = 1;
-            }
+    
+            labirint[pozi][pozj].V = 0;
+            labirint[pozi][pozj - 1].E = 0;
+
+            verif = labirint[pozi][pozj-1].E;
+
+            bk(pozi, pozj - 1, nr_pasi + 1);
+            if(verif) labirint[pozi][pozj - 1].E = 1;
+        
             sol[nr_pasi][2]++;
         }
+        
         labirint[pozi][pozj].N = okn;
         labirint[pozi][pozj].E = oke;
         labirint[pozi][pozj].S = oks;
@@ -171,7 +166,7 @@ int main()
             labirint[i][j].V = bin[0];
         }
     }
-    cin >> pi >> pj; // citim coordonatele pozitiei initiale
+    cin >> pi >> pj; 
     sol[0][1] = pi;
     sol[0][2] = pj;
     bk(pi, pj, 1);
